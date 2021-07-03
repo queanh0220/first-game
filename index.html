@@ -30,11 +30,12 @@
 		var lives = 2;
 		var score = 0;
 		var idcolor = 0;
-		var x = canvas.width/2, y = canvas.height-30;
+		var x = canvas.width/2, y = canvas.height-50;
 		var ballRadius = 12;
-		var dx = 50, dy = -50;
+		var dx =50; dy = -50;
 
-		var l = 0, n;
+		var then = Date.now(),fpsInterval = 1000/50, now, elapsed = 2;
+
 		var paddleHeight = 20, paddleWidth = 150;
 		var paddleX = (canvas.width - paddleWidth) / 2;
 		var rightPressed = false;
@@ -108,7 +109,7 @@
 		}
 
 		function draw(){
-			n = Date.now();
+			//then = Date.now();
 			ctx.clearRect(0, 0, canvas.width,canvas.height);
 			drawBall();
 			drawPaddle();
@@ -116,48 +117,56 @@
 			drawScore();
 			drawLives();
 			checkCollision();
-			//alert(n-l);
-			if(l > 0) {
-				x += dx*(1/(n-l));
-				y += dy*(1/(n-l));
-			}
+			//alert(elapsed);
+			x += dx*(1/elapsed);
+			y += dy*(1/elapsed);
 			requestAnimationFrame(draw);
-			l = Date.now();
+			now = Date.now();
+			elapsed = now - then;
+			if (elapsed > fpsInterval) {
+
+		        // Get ready for next frame by setting then=now, but also adjust for your
+		        // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
+		        then = now - (elapsed % fpsInterval);
+
+		        // Put your drawing code here
+
+		    }
 		}
 
 		function checkCollision(){
-			if(x + dx*(1/(n-l)) < ballRadius || x + dx*(1/(n-l)) > canvas.width - ballRadius){
+			if(x + dx*(1/elapsed) < ballRadius || x + dx*(1/elapsed) > canvas.width - ballRadius){
 				dx = -dx;
 				idcolor++;
 			} 
-			if(y + dy*(1/(n-l)) < ballRadius){
+			if(y + dy*(1/elapsed) < ballRadius){
 				dy = -dy;
 				idcolor++;
 			} 
-			if(y + dy*(1/(n-l)) > canvas.height - ballRadius - paddleHeight) {
-				if( cirRecColection(x + dx*(1/(n-l)),y + dx*(1/(n-l)),paddleX,canvas.height - paddleHeight,paddleWidth,paddleHeight) ) {
-					x += dx*(1/(n-l)) ;y += dy*(1/(n-l));
+			if(y + dy*(1/elapsed) > canvas.height - ballRadius - paddleHeight) {
+				if( cirRecColection(x + dx*(1/elapsed),y + dx*(1/elapsed),paddleX,canvas.height - paddleHeight,paddleWidth,paddleHeight) ) {
+					x += dx*(1/elapsed) ;y += dy*(1/elapsed);
 					ctx.clearRect(0, 0, canvas.width,canvas.height);
 					drawBall();
 					drawPaddle();
 					drawBrick();
 					drawScore();
 					drawLives();
-					x -= dx*(1/(n-l)); y -= dy*(1/(n-l));
-					if(x + dx < paddleX || x + dx > paddleX + paddleWidth)dx = -dx;
+					x -= dx*(1/elapsed); y -= dy*(1/elapsed);
+					if(x + dx*(1/elapsed) < paddleX || x + dx*(1/elapsed) > paddleX + paddleWidth)dx = -dx;
 					dy = -dy;
 					idcolor++;
 				}
 			}
-			if(y + dy*(1/(n-l)) > canvas.height - ballRadius) {
-				x += dx*(1/(n-l)) ;y += dy*(1/(n-l));
+			if(y + dy*(1/elapsed) > canvas.height - ballRadius) {
+				x += dx*(1/elapsed) ;y += dy*(1/elapsed);
 				ctx.clearRect(0, 0, canvas.width,canvas.height);
 				drawBall();
 				drawPaddle();
 				drawBrick();
 				drawScore();
 				drawLives();
-				x -= dx*(1/(n-l)); y -= dy*(1/(n-l));
+				x -= dx*(1/elapsed); y -= dy*(1/elapsed);
 				lives--;
 					if(!lives) {
 					    alert("GAME OVER\nYOUR SCORE: "+score);
@@ -166,7 +175,7 @@
 					}
 					else {
 					    x = canvas.width/2;
-					    y = canvas.height-30;
+					    y = canvas.height-50;
 					    dx = -50;
 					    dy = -50;
 					    paddleX = (canvas.width-paddleWidth)/2;
