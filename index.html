@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8" />
 	<title></title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<style type="text/css">
 		* { padding: 0; margin: 0; }
 		canvas { background: #eee; display: block; margin: 0 auto; }
@@ -11,6 +12,7 @@
 </head>
 <body>
 	<canvas id="myCanvas" width = "500" height = "350"></canvas>
+	<script type="text/javascript" src="level.json"></script>>
 	<script type="text/javascript">
 		var canvas = document.getElementById("myCanvas");
 		var ctx = canvas.getContext("2d");
@@ -27,12 +29,19 @@
 		  "#7cffd5",
 		  "#9fa3a2",
 		];
+
+		const data = '[[[1,1,1,1,1],[1,1,1,1,1],[1,1,1,1,1]],[[1,0,1,0,1],[0,1,0,1,0],[1,0,1,0,1]],[[1,1,1,1,1],[0,1,1,1,0],[0,0,1,0,0]],[[1,1,1,1,1],[1,1,0,1,1],[1,0,0,0,1]]]';
+		var leveldata = JSON.parse(data);
+		const numbrick = [15,8,9,11];
+		var maxscore = 15;
+		var level = 0;
 		var lives = 2;
 		var score = 0;
 		var idcolor = 0;
 		var x = canvas.width/2, y = canvas.height-50;
 		var ballRadius = 12;
-		var dx =50; dy = -50;
+		var dx =100; dy = -100;
+		var dxx = dx; dyy = -dy;
 
 		var then = Date.now(),fpsInterval = 1000/50, now, elapsed = 2;
 
@@ -50,12 +59,6 @@
 		var brickWidth = (canvas.width - brickPadding*(brickColumnCount-1)-brickOffsetLeft*2)/brickColumnCount; 
 
 		var bricks = [];
-		for(var c=0; c<brickColumnCount; c++) {
-		    bricks[c] = [];
-		    for(var r=0; r<brickRowCount; r++) {
-		        bricks[c][r] = { x: 0, y: 0, status: true };
-		    }
-		}
 
 		document.addEventListener("keydown", keyDownHandler, false);
 		document.addEventListener("keyup", keyUpHandler, false);
@@ -74,6 +77,12 @@
 			ctx.fillText("Score: "+score, 8, 20);
 		}
 
+		function drawLevel() {
+			ctx.font = "16px Arial";
+			ctx.fillStyle = "#0095DD";
+			ctx.fillText("Level: "+(level+1), canvas.width/2-30, 20);
+		}
+
 		function drawBall(){
 			ctx.beginPath();
 			ctx.arc(x,y,ballRadius,0,Math.PI*2,false);
@@ -90,10 +99,18 @@
 			ctx.closePath();
 		}
 
+		function getBrick(i){
+			for(var c=0; c<brickColumnCount; c++) {
+			    bricks[c] = [];
+			    for(var r=0; r<brickRowCount; r++) {
+			        bricks[c][r] = { x: 0, y: 0, status: leveldata[i][r][c] };
+			    }
+			}
+		}
 		function drawBrick(){
 			 for(var c=0; c<brickColumnCount; c++) {
 		        for(var r=0; r<brickRowCount; r++) {
-		        	if(bricks[c][r].status) {
+		        	if(bricks[c][r].status == 1) {
 		        		var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
 			            var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
 			            bricks[c][r].x = brickX;
@@ -116,6 +133,7 @@
 			drawBrick();
 			drawScore();
 			drawLives();
+			drawLevel();
 			checkCollision();
 			//alert(elapsed);
 			x += dx*(1/elapsed);
@@ -124,13 +142,7 @@
 			now = Date.now();
 			elapsed = now - then;
 			if (elapsed > fpsInterval) {
-
-		        // Get ready for next frame by setting then=now, but also adjust for your
-		        // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
 		        then = now - (elapsed % fpsInterval);
-
-		        // Put your drawing code here
-
 		    }
 		}
 
@@ -144,7 +156,7 @@
 				idcolor++;
 			} 
 			if(y + dy*(1/elapsed) > canvas.height - ballRadius - paddleHeight) {
-				if( cirRecColection(x + dx*(1/elapsed),y + dx*(1/elapsed),paddleX,canvas.height - paddleHeight,paddleWidth,paddleHeight) ) {
+				if( cirRecColection(x + dx*(1/elapsed),y + dy*(1/elapsed),paddleX,canvas.height - paddleHeight,paddleWidth,paddleHeight) ) {
 					x += dx*(1/elapsed) ;y += dy*(1/elapsed);
 					ctx.clearRect(0, 0, canvas.width,canvas.height);
 					drawBall();
@@ -170,14 +182,14 @@
 				lives--;
 					if(!lives) {
 					    alert("GAME OVER\nYOUR SCORE: "+score);
-						//document.location.read();
+						document.location.read();
 						//clearInterval(interval);
 					}
 					else {
 					    x = canvas.width/2;
 					    y = canvas.height-50;
-					    dx = -50;
-					    dy = -50;
+					    dx = -100;
+					    dy = -100;
 					    paddleX = (canvas.width-paddleWidth)/2;
 					}
 			}
@@ -205,9 +217,22 @@
 		                    idcolor++;
 		                    b.status = 0;
 		                    score+=100;
-		                    if(score/100 == brickRowCount*brickColumnCount) {
-		                        alert("YOU WIN!\nYOUR SCORE: "+score);
-		                        document.location.reload();
+		                    if(score/100 == maxscore) {
+		                    	if(level == 3){
+		                    		alert("MAX LEVEL!!!\nYOU WIN\nYOUR SCORE: "+score+"\n Click ok to play again");
+		                    		document.location.reload();
+		                    	}
+		                    	else{
+		                    		alert("YOU WIN!\nYOUR SCORE: "+score+"\n Click OK to start level "+(level+2));
+			                        level++;
+			                        getBrick(level);
+			                        maxscore+=numbrick[level];
+			                        x = canvas.width/2;
+								    y = canvas.height-50;
+								    dx = -100;
+								    dy = -100;
+		                    	}
+
 		                       // clearInterval(interval);
                     		}
 		                }
@@ -236,6 +261,12 @@
 			else if(e.key == "Left" || e.key == "ArrowLeft") {
 				leftPressed = true;
 			}
+			else if(e.key == "Up" || e.key == "ArrowUp") {
+				if(dx > 0) dx = 2*dxx;
+				else dx = -2*dxx;
+				if(dy > 0) dy = 2*dyy;
+				else dy = -2*dyy;
+			}
 		}
 
 		function keyUpHandler(e) {
@@ -245,6 +276,12 @@
 		    else if(e.key == "Left" || e.key == "ArrowLeft") {
 		        leftPressed = false;
 		    }
+		    else if(e.key == "Up" || e.key == "ArrowUp") {
+				if(dx > 0) dx = dxx;
+				else dx = -dxx;
+				if(dy > 0) dy = dyy;
+				else dy = -dyy;
+			}
 		}
 
 		function mouseMoveHandler(e) {
@@ -263,6 +300,7 @@
 		    }
 			 }
 		}
+	getBrick(level);
 	draw();
 	//	var interval = setInterval(draw,10);
 	</script>
