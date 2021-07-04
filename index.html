@@ -40,10 +40,10 @@
 		var idcolor = 0;
 		var x = canvas.width/2, y = canvas.height-50;
 		var ballRadius = 12;
-		var dx =100; dy = -100;
+		var dx =200; dy = -200;
 		var dxx = dx; dyy = -dy;
 
-		var then = Date.now(),fpsInterval = 1000/30, now, delta = 2000;
+		var then = Date.now(), now, delta = 50;
 		var dxdelta = parseInt( dx*(delta/1000) ), dydelta = parseInt( dy*(delta/1000) );
 
 		var paddleHeight = 20, paddleWidth = 150;
@@ -136,7 +136,7 @@
 			drawLives();
 			drawLevel();
 			checkCollision();
-			//alert((dxdelta) + "  " + dydelta);
+			//alert(dxdelta + "  " + dydelta);
 			dxdelta = dx * (delta/1000) ;
 		    dydelta = dy * (delta/1000) ;
 			x += dxdelta;
@@ -144,9 +144,7 @@
 			requestAnimationFrame(draw);
 			now = Date.now();
 			delta = (now - then);
-			if (delta > fpsInterval) {
-		        then = now - (delta % fpsInterval);
-		    }
+			then = now;
 		}
 
 		function checkCollision(){
@@ -192,8 +190,8 @@
 					else {
 					    x = canvas.width/2;
 					    y = canvas.height-50;
-					    dx = -100;
-					    dy = -100;
+					    dx = -200;
+					    dy = -200;
 					    paddleX = (canvas.width-paddleWidth)/2;
 					}
 			}
