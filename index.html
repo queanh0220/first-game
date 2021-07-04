@@ -30,10 +30,10 @@
 		  "#9fa3a2",
 		];
 
-		const data = '[[[1,1,1,1,1],[1,1,1,1,1],[1,1,1,1,1]],[[1,0,1,0,1],[0,1,0,1,0],[1,0,1,0,1]],[[1,1,1,1,1],[0,1,1,1,0],[0,0,1,0,0]],[[1,1,1,1,1],[1,1,0,1,1],[1,0,0,0,1]]]';
+		const data = '[[[0,0,0,1,1],[1,1,1,1,1],[1,1,1,1,1]],[[1,0,1,0,1],[0,1,0,1,0],[1,0,1,0,1]],[[1,1,1,1,1],[0,1,1,1,0],[0,0,1,0,0]],[[1,1,1,1,1],[1,1,0,1,1],[1,0,0,0,1]]]';
 		var leveldata = JSON.parse(data);
 		const numbrick = [15,8,9,11];
-		var maxscore = 15;
+		var maxscore = 12;
 		var level = 0;
 		var lives = 2;
 		var score = 0;
@@ -229,10 +229,14 @@
 			                        level++;
 			                        getBrick(level);
 			                        maxscore+=numbrick[level];
-			                        x = canvas.width/2;
-								    y = canvas.height-50;
-								    dx = -100;
-								    dy = -100;
+			                        x = paddleX + paddleWidth/2;
+			                        
+			                        if(x - ballRadius <= 0) x = ballRadius+1;
+			                        if(x + ballRadius >= canvas.width) x = canvas.width - ballRadius-1;
+						y = canvas.height-50;
+						dx = -200;
+						dy = -200;
+						then = Date.now();
 		                    	}
 
 		                       // clearInterval(interval);
