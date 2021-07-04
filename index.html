@@ -43,7 +43,8 @@
 		var dx =100; dy = -100;
 		var dxx = dx; dyy = -dy;
 
-		var then = Date.now(),fpsInterval = 1000/50, now, elapsed = 2;
+		var then = Date.now(),fpsInterval = 1/30, now, delta = 2;
+		var dxdelta = dx*delta, dydelta = dy*delta;
 
 		var paddleHeight = 20, paddleWidth = 150;
 		var paddleX = (canvas.width - paddleWidth) / 2;
@@ -135,54 +136,57 @@
 			drawLives();
 			drawLevel();
 			checkCollision();
-			//alert(elapsed);
-			x += dx*(1/elapsed);
-			y += dy*(1/elapsed);
+			//alert(delta);
+			x += dxdelta;
+			y += dydelta;
 			requestAnimationFrame(draw);
 			now = Date.now();
-			elapsed = now - then;
-			if (elapsed > fpsInterval) {
-		        then = now - (elapsed % fpsInterval);
+			delta = (now - then)/1000;
+			if (delta > fpsInterval) {
+		        then = now - ((delta*1000) % (fpsInterval*1000));
 		    }
+		    dxdelta = dx * delta;
+		    dydelta = dy * delta;
 		}
 
 		function checkCollision(){
-			if(x + dx*(1/elapsed) < ballRadius || x + dx*(1/elapsed) > canvas.width - ballRadius){
+			if(x + dxdelta < ballRadius || x + dxdelta > canvas.width - ballRadius){
 				dx = -dx;
 				idcolor++;
 			} 
-			if(y + dy*(1/elapsed) < ballRadius){
+			if(y + dydelta < ballRadius){
 				dy = -dy;
 				idcolor++;
 			} 
-			if(y + dy*(1/elapsed) > canvas.height - ballRadius - paddleHeight) {
-				if( cirRecColection(x + dx*(1/elapsed),y + dy*(1/elapsed),paddleX,canvas.height - paddleHeight,paddleWidth,paddleHeight) ) {
-					x += dx*(1/elapsed) ;y += dy*(1/elapsed);
+			if(y + dydelta > canvas.height - ballRadius - paddleHeight) {
+				if( cirRecColection(x + dxdelta,y + dydelta,paddleX,canvas.height - paddleHeight,paddleWidth,paddleHeight) ) {
+					x += dxdelta ;y += dydelta;
 					ctx.clearRect(0, 0, canvas.width,canvas.height);
 					drawBall();
 					drawPaddle();
 					drawBrick();
 					drawScore();
 					drawLives();
-					x -= dx*(1/elapsed); y -= dy*(1/elapsed);
-					if(x + dx*(1/elapsed) < paddleX || x + dx*(1/elapsed) > paddleX + paddleWidth)dx = -dx;
+					x -= dxdelta; y -= dydelta;
+					if(x + dxdelta < paddleX || x + dxdelta > paddleX + paddleWidth)dx = -dx;
 					dy = -dy;
 					idcolor++;
 				}
 			}
-			if(y + dy*(1/elapsed) > canvas.height - ballRadius) {
-				x += dx*(1/elapsed) ;y += dy*(1/elapsed);
+			if(y + dydelta > canvas.height - ballRadius) {
+				x += dxdelta ;y += dydelta;
 				ctx.clearRect(0, 0, canvas.width,canvas.height);
 				drawBall();
 				drawPaddle();
 				drawBrick();
 				drawScore();
 				drawLives();
-				x -= dx*(1/elapsed); y -= dy*(1/elapsed);
+				x -= dxdelta; y -= dydelta;
 				lives--;
 					if(!lives) {
 					    alert("GAME OVER\nYOUR SCORE: "+score);
 						document.location.read();
+						
 						//clearInterval(interval);
 					}
 					else {
