@@ -40,11 +40,13 @@
 		var idcolor = 0;
 		var x = canvas.width/2, y = canvas.height-50;
 		var ballRadius = 12;
-		var dx =200; dy = -200;
+		var dx =20; dy = -20;
 		var dxx = dx; dyy = -dy;
 
-		var then = Date.now(), now, delta = 50;
-		var dxdelta = parseInt( dx*(delta/1000) ), dydelta = parseInt( dy*(delta/1000) );
+		var then = Date.now(), now, delta = 50, fps = 60;
+		var fpsInterval = 1000 / fps;
+
+		var dxdelta = dx*(delta/100), dydelta =dy*(delta/100);
 
 		var paddleHeight = 20, paddleWidth = 150;
 		var paddleX = (canvas.width - paddleWidth) / 2;
@@ -137,14 +139,19 @@
 			drawLevel();
 			checkCollision();
 			//alert(dxdelta + "  " + dydelta);
-			dxdelta = dx * (delta/1000) ;
-		    dydelta = dy * (delta/1000) ;
+			dxdelta = dx * (delta/100) ;
+		    dydelta = dy * (delta/100) ;
 			x += dxdelta;
 			y += dydelta;
 			requestAnimationFrame(draw);
 			now = Date.now();
 			delta = (now - then);
-			then = now;
+			if (delta > fpsInterval) {
+		        then = now - (delta % fpsInterval);
+		    }
+		    else {
+		    	delta = 0;
+		    }
 		}
 
 		function checkCollision(){
@@ -190,8 +197,8 @@
 					else {
 					    x = canvas.width/2;
 					    y = canvas.height-50;
-					    dx = -200;
-					    dy = -200;
+					    dx = -20;
+					    dy = -20;
 					    paddleX = (canvas.width-paddleWidth)/2;
 					}
 			}
@@ -231,12 +238,12 @@
 			                        maxscore+=numbrick[level];
 			                        x = paddleX + paddleWidth/2;
 			                        
-			                        if(x - ballRadius <= 0) x = ballRadius+1;
-			                        if(x + ballRadius >= canvas.width) x = canvas.width - ballRadius-1;
-						y = canvas.height-50;
-						dx = -200;
-						dy = -200;
-						then = Date.now();
+			                        if(x - ballRadius <= 0)x = ballRadius+1;
+			                        if(x + ballRadius >= canvas.width)x = canvas.width - ballRadius-1;
+								    y = canvas.height-50;
+								    dx = -20;
+								    dy = -20;
+								    then = Date.now();
 		                    	}
 
 		                       // clearInterval(interval);
