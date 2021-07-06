@@ -38,15 +38,16 @@
 		var lives = 2;
 		var score = 0;
 		var idcolor = 0;
+		//var s = Date.now();
 		var x = canvas.width/2, y = canvas.height-50;
 		var ballRadius = 12;
-		var dx =20; dy = -20;
+		var dx =0.2; dy = -0.2;
 		var dxx = dx; dyy = -dy;
 
-		var then = Date.now(), now, delta = 50, fps = 60;
-		var fpsInterval = 1000 / fps;
+		var then = 0, delta = 0, fps = 120;
+		var fpsInterval =  1000 / fps;
 
-		var dxdelta = dx*(delta/100), dydelta =dy*(delta/100);
+		var dxdelta, dydelta;
 
 		var paddleHeight = 20, paddleWidth = 150;
 		var paddleX = (canvas.width - paddleWidth) / 2;
@@ -128,7 +129,7 @@
 		    }
 		}
 
-		function draw(){
+		function draw(now){
 			//then = Date.now();
 			ctx.clearRect(0, 0, canvas.width,canvas.height);
 			drawBall();
@@ -137,23 +138,32 @@
 			drawScore();
 			drawLives();
 			drawLevel();
-			dxdelta = dx * (delta/100) ;
-		    dydelta = dy * (delta/100) ;
-			checkCollision();
 			
-			dxdelta = dx * (delta/100) ;
-		    dydelta = dy * (delta/100) ;
-			x += dxdelta;
-			y += dydelta;
-			requestAnimationFrame(draw);
-			now = Date.now();
-			delta = (now - then);
-			if (delta > fpsInterval) {
-		        then = now - (delta % fpsInterval);
+		    //console.log(fpsInterval);
+			
+			if(now-then < fpsInterval) {
+				requestAnimationFrame(draw);
+				return;
+			}
+			delta += (now - then);
+			then = now;
+			var numUpdateSteps = 0;
+			while (delta >= fpsInterval) {
+				dxdelta = dx*(fpsInterval);
+				dydelta = dy*(fpsInterval);
+				checkCollision();
+				dxdelta = dx*(fpsInterval);
+				dydelta = dy*(fpsInterval);
+				x += dxdelta;
+				y += dydelta;
+		        delta -= fpsInterval;
+		        if (++numUpdateSteps >= 240) {
+		        	dem++;
+		        	delta = 0;
+		            break;
+        		}
 		    }
-		    else {
-		    	delta = 0;
-		    }
+		    requestAnimationFrame(draw);
 		}
 
 		function checkCollision(){
@@ -224,6 +234,8 @@
 		            var b = bricks[c][r];
 		            if(b.status == 1) {
 		                if(cirRecColection(x,y,b.x,b.y,brickWidth,brickHeight)) {
+		                	//var no = Date.now();
+		                	//alert(no-s);
 		                    dy = -dy;
 		                    idcolor++;
 		                    b.status = 0;
@@ -243,9 +255,8 @@
 			                        if(x - ballRadius <= 0)x = ballRadius+1;
 			                        if(x + ballRadius >= canvas.width)x = canvas.width - ballRadius-1;
 								    y = canvas.height-50;
-								    dx = -20;
-								    dy = -20;
-								    then = Date.now();
+								    dx = -0.2;
+								    dy = -0.2;
 		                    	}
 
 		                       // clearInterval(interval);
@@ -308,7 +319,6 @@
 
 		function touchmoveHandler(e) {
 			 for (var i = 0; i < e.touches.length; i++) {
-
 			 	var relativeX = e.touches[i].clientX - canvas.offsetLeft;
 			if(relativeX > 0 && relativeX < canvas.width) {
 		        paddleX = relativeX - paddleWidth/2;
@@ -316,7 +326,7 @@
 			 }
 		}
 	getBrick(level);
-	draw();
+	requestAnimationFrame(draw);
 	//	var interval = setInterval(draw,10);
 	</script>
 </body>
